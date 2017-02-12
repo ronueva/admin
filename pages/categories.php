@@ -30,6 +30,7 @@ if (!isset($_SESSION["company"])) {
         body {
             padding-top: 50px;
         }
+
         /*
          * Typography
          */
@@ -38,6 +39,7 @@ if (!isset($_SESSION["company"])) {
             padding-bottom: 9px;
             border-bottom: 1px solid #eee;
         }
+
         /*
          * Sidebar
          */
@@ -52,23 +54,29 @@ if (!isset($_SESSION["company"])) {
             overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
             border-right: 1px solid #eee;
         }
+
         /* Sidebar navigation */
         .sidebar {
             padding-left: 0;
             padding-right: 0;
         }
+
         .sidebar .nav {
             margin-bottom: 20px;
         }
+
         .sidebar .nav-item {
             width: 100%;
         }
+
         .sidebar .nav-item + .nav-item {
             margin-left: 0;
         }
+
         .sidebar .nav-link {
             border-radius: 0;
         }
+
         /*
          * Dashboard
          */
@@ -76,10 +84,12 @@ if (!isset($_SESSION["company"])) {
         .placeholders {
             padding-bottom: 3rem;
         }
+
         .placeholder img {
             padding-top: 1.5rem;
             padding-bottom: 1.5rem;
         }
+
         #yourElement {
             -webkit-background-size: cover;
             -moz-background-size: cover;
@@ -91,21 +101,21 @@ if (!isset($_SESSION["company"])) {
 </head>
 <body>
 <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+    <a class="navbar-brand" href="overview.php">My Event</a>
     <button class="navbar-toggler navbar-toggler-right hidden-lg-up" type="button" data-toggle="collapse"
             data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false"
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse hidden-lg-up" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto ">
             <li class="nav-item active">
-                <a class="nav-link" href="overview.php">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="../handler/signout.php" aria-haspopup="true" aria-expanded="false"
+                   onclick="return signout_dialog()">
+                    Sign Out
+                </a>
             </li>
         </ul>
-        <a class="nav-link" href="../handler/signout.php" aria-haspopup="true" aria-expanded="false"
-           onclick="return signout_dialog()">
-            Sign Out
-        </a>
     </div>
 </nav>
 <div class="container-fluid">
@@ -128,15 +138,207 @@ if (!isset($_SESSION["company"])) {
         </nav>
         <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
             <h2 style="margin-top: 10px;"><?php echo $company->company_name; ?></h2>
+            <hr>
+            <div class="row">
+                <?php
+                if (isset($_SESSION['action'])) {
+                    if ($_SESSION['action']) { ?>
+                        <div class="col-sm-3 offset-9">
+                            <div id="addedAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Success!</strong> Category added successfully.
+                            </div>
+                        </div>
+                        <?php
+                        unset($_SESSION['action']);
+                    } else {
+                        ?>
+                        <div class="col-sm-3 offset-9">
+                            <div id="addedAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error!</strong> DB saving error.
+                            </div>
+                        </div>
+                        <?php
+                        unset($_SESSION['action']);
+                    }
+                }
+                ?>
+
+
+            </div>
+            <?php
+            $packages = $db->getAllCompanyPackages($company->company_id);
+            $x = 0;
+            foreach ($packages as $package) {
+                ?>
+                <h5 style="margin-top: 1%"><strong>Package: </strong> <?php echo $package->package_name; ?></h5>
+                <table class="table table-hover table-sm" style="margin-top: 2%">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Category ID</th>
+                        <th>Category Name</th>
+                        <th>Category Description</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $categories = $db->getAllCategoryPerPackage($package->package_id);
+                    $x = 0;
+                    foreach ($categories as $category) {
+                        ?>
+                        <tr>
+                            <td><?php echo $category->category_id; ?></td>
+                            <td><?php echo $category->category_name; ?></td>
+                            <td>
+                                <small><?php echo $category->category_description; ?></small>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <a class="btn btn-secondary dropdown-toggle" href="" id="dropdownMenuLink"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Action
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item"
+                                           onclick="showEditModal(<?php echo $category->category_id; ?>)"
+                                           href="#">Edit</a>
+                                        <a class="dropdown-item"
+                                           onclick="showDeleteModal(<?php echo $category->category_id; ?>)"
+                                           href="#">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php
+                    } ?>
+                    <tr class="table-warning" style="cursor: pointer"
+                        onclick="showAddModal(<?php echo $package->package_id; ?>)">
+                        <td>
+                            <h6>Add new category</h6>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr style="margin-top: 3%; margin-bottom: 2%">
+                <?php
+            }
+            $x++;
+            ?>
         </main>
     </div>
 </div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form_addPackage">
+                <div class="modal-body" style="padding: 7%">
+                    <div id="c_name_group" class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Category Name</span>
+                        <input type="text" id='category_name' name="category_name" class="form-control"
+                               placeholder="E.g. Food, Personnel, Giveaways"
+                               aria-describedby="basic-addon1">
+                    </div>
+                    <div id="c_description_group" name="c_description_group" class="form-group" style="margin-top: 5%">
+                        <label for="category_description">Category Description</label>
+                        <textarea class="form-control" id="category_description" name="category_description"
+                                  rows="3"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="cursor: pointer" id="btn_save" class="btn btn-primary">Save changes
+                    </button>
+                    <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete category?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" style="cursor: pointer" id="deleteBtn" class="btn btn-danger">Delete</button>
+                <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="../handler/editPackage.php" id="form_editPackage" method="post" enctype="multipart/form-data">
+                <div class="modal-body" style="padding: 7%">
+                    <input type="text" id="category_id_edit" name="category_id_edit" class="form-control"
+                           style="visibility: hidden" readonly placeholder="">
+                    <div id="c_name_group_edit" class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Category Name</span>
+                        <input type="text" id='category_name_edit' name="category_name_edit" class="form-control"
+                               placeholder="E.g. Food, Personnel, Giveaways"
+                               aria-describedby="basic-addon1">
+                    </div>
+                    <div id="c_description_group_edit" name="c_description_group_edit" class="form-group"
+                         style="margin-top: 5%">
+                        <label for="category_description">Category Description</label>
+                        <textarea class="form-control" id="category_description" name="category_description"
+                                  rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="cursor: pointer" id="btn_save_edit" class="btn btn-primary">Save
+                        changes
+                    </button>
+                    <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
         integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
         crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
         integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
         crossorigin="anonymous"></script>
@@ -144,6 +346,64 @@ if (!isset($_SESSION["company"])) {
         integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
         crossorigin="anonymous"></script>
 <script>
+    var check_input_arr = new Array();
+
+
+    function showAddModal(x) {
+        $('#addModal').modal({backdrop: 'static', keyboard: false})
+        $('#btn_save').on('click', function () {
+            var fd = new FormData();
+            var other_data = $('#form_addPackage').serializeArray();
+            $.each(other_data, function (key, input) {
+                fd.append(input.name, input.value);
+            });
+            fd.append('package_id', x);
+
+            $.ajax({
+                type: 'POST',
+                url: '../handler/addCategory.php',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('#addModal').modal('toggle');
+                    location.reload();
+                }
+            });
+
+        })
+
+    }
+
+    function showEditModal(x) {
+        $('#editModal').modal({backdrop: 'static', keyboard: false})
+    }
+
+    function showDeleteModal(x) {
+        $('#deleteModal').modal({backdrop: 'static', keyboard: false})
+
+        var fd = new FormData();
+        fd.append('category_id', x);
+
+
+        $('#deleteBtn').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: '../handler/deleteCategory.php',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('#deleteModal').modal('toggle');
+                    if (data) {
+                        location.reload();
+                    }
+                }
+            });
+        })
+    }
+
+
     function signout_dialog() {
         var r = confirm("Do you really want to sign out?");
         if (r == false) {

@@ -253,12 +253,13 @@ class DbHandler extends dbConn
     }
 
     function getDistinctPackageType(){
-        $statement = $this->conn->prepare(
-            "SELECT DISTINCT package_type FROM `packages`"
+        $getTypeStatement = $this->conn->prepare(
+            "SELECT * FROM `types`"
         );
-        $statement->execute();
+        $getTypeStatement->execute();
 
-        return $statement->FetchAll(PDO::FETCH_OBJ);
+
+        return $getTypeStatement->FetchAll(PDO::FETCH_OBJ);
     }
 
     function getPackageById($package_id)
@@ -600,6 +601,8 @@ class DbHandler extends dbConn
 
         return $getItemStatement->FetchAll(PDO::FETCH_OBJ);
     }
+
+
 
 
 }

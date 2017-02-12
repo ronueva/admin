@@ -2,8 +2,8 @@
 
 
 define('DB_HOST', 'localhost');
-define('DB_USERNAME', 'id476319_ecoordinator2017');
-define('DB_PASSWORD', '01610218');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
 define('DB_NAME', 'id476319_ecoordinator_db');
 
 //db connection class using singleton pattern

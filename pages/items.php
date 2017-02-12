@@ -120,21 +120,21 @@ if (!isset($_SESSION["company"])) {
 
 <body>
 <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+    <a class="navbar-brand" href="overview.php">My Event</a>
     <button class="navbar-toggler navbar-toggler-right hidden-lg-up" type="button" data-toggle="collapse"
             data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false"
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse hidden-lg-up" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto ">
             <li class="nav-item active">
-                <a class="nav-link" href="overview.php">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="../handler/signout.php" aria-haspopup="true" aria-expanded="false"
+                   onclick="return signout_dialog()">
+                    Sign Out
+                </a>
             </li>
         </ul>
-        <a class="nav-link" href="../handler/signout.php" aria-haspopup="true" aria-expanded="false"
-           onclick="return signout_dialog()">
-            Sign Out
-        </a>
     </div>
 </nav>
 
