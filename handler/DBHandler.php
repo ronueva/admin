@@ -403,6 +403,18 @@ class DbHandler extends dbConn
         return $getAllCategoryStatement->FetchAll(PDO::FETCH_OBJ);
     }
 
+    function getCategoryById($category_id){
+
+        $getCategoryByIdStmnt = $this->conn->prepare(
+            "select * from category where category_id = :category_id"
+        );
+        $getCategoryByIdStmnt->execute(array(':category_id' => $category_id));
+
+
+        return $getCategoryByIdStmnt->Fetch(PDO::FETCH_OBJ);
+
+    }
+
     //EVENTS CRUD
 
     function addEvent($user_id, $package_id, $event_name, $event_date_from, $event_date_to, $event_description, $event_tags, $loc_lat, $loc_long, $loc_name, $image_directory)

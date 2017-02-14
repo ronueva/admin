@@ -315,7 +315,7 @@ if (!isset($_SESSION["company"])) {
                     <div id="c_description_group_edit" name="c_description_group_edit" class="form-group"
                          style="margin-top: 5%">
                         <label for="category_description">Category Description</label>
-                        <textarea class="form-control" id="category_description" name="category_description"
+                        <textarea class="form-control" id="category_description_edit" name="category_description_edit"
                                   rows="3"></textarea>
                     </div>
                 </div>
@@ -348,28 +348,39 @@ if (!isset($_SESSION["company"])) {
 <script>
     var check_input_arr = new Array();
 
-
     function showAddModal(x) {
         $('#addModal').modal({backdrop: 'static', keyboard: false})
-        $('#btn_save').on('click', function () {
-            var fd = new FormData();
-            var other_data = $('#form_addPackage').serializeArray();
-            $.each(other_data, function (key, input) {
-                fd.append(input.name, input.value);
-            });
-            fd.append('package_id', x);
 
-            $.ajax({
-                type: 'POST',
-                url: '../handler/addCategory.php',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    $('#addModal').modal('toggle');
-                    location.reload();
-                }
-            });
+        $('#btn_save').on('click', function () {
+
+            check_input_arr = new Array();
+
+            var c_name = $("#category_name").val()
+            var c_description = $("#category_description").val()
+
+            checkElement(c_name, $("#category_name"), $("#c_name_group"))
+            checkElement(c_description, $("#category_description"), $("#c_description_group"))
+
+            if (!check_input_arr.includes(false)) {
+                var fd = new FormData();
+                var other_data = $('#form_addPackage').serializeArray();
+                $.each(other_data, function (key, input) {
+                    fd.append(input.name, input.value);
+                });
+                fd.append('package_id', x);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '../handler/addCategory.php',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $('#addModal').modal('toggle');
+                        location.reload();
+                    }
+                });
+            }
 
         })
 
@@ -377,6 +388,61 @@ if (!isset($_SESSION["company"])) {
 
     function showEditModal(x) {
         $('#editModal').modal({backdrop: 'static', keyboard: false})
+
+        var package_id;
+
+        var fd = new FormData();
+        fd.append('category_id', x);
+
+        $.ajax({
+            type: 'POST',
+            url: '../handler/getCategory.php',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                var details = JSON.parse(data)
+                $('#category_id_edit').val(details.category_id)
+                $('#category_name_edit').val(details.category_name)
+                $('textarea#category_description_edit').val(details.category_description)
+                console.log(package_id = details.package_id)
+            }
+        });
+
+        $('#btn_save_edit').on('click', function () {
+
+            check_input_arr = new Array();
+
+            var c_name = $("#category_name_edit").val()
+            var c_description = $("#category_description_edit").val()
+
+            checkElement(c_name, $("#category_name_edit"), $("#c_name_group_edit"))
+            checkElement(c_description, $("#category_description_edit"), $("#c_description_group_edit"))
+
+            if (!check_input_arr.includes(false)) {
+                var fd = new FormData();
+                var other_data = $('#form_editPackage').serializeArray();
+                $.each(other_data, function (key, input) {
+                    fd.append(input.name, input.value);
+                });
+                fd.append('category_id', x);
+                fd.append('package_id', package_id);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '../handler/editCategory.php',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $('#editModal').modal('toggle');
+                        location.reload();
+                    }
+                });
+            }
+
+        })
+
     }
 
     function showDeleteModal(x) {
@@ -403,6 +469,18 @@ if (!isset($_SESSION["company"])) {
         })
     }
 
+    function checkElement(value, input, group) {
+        if (!value) {
+            $(group).addClass("has-danger")
+            $(input).addClass("form-control-danger")
+            check_input_arr.push(false)
+        } else {
+            $(group).removeClass("has-danger")
+            $(input).removeClass("form-control-danger")
+            check_input_arr.push(true)
+        }
+    }
+
 
     function signout_dialog() {
         var r = confirm("Do you really want to sign out?");
@@ -410,6 +488,7 @@ if (!isset($_SESSION["company"])) {
             return false
         }
     }
+
 </script>
 </body>
 </html>
