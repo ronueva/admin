@@ -55,6 +55,19 @@ if (!isset($_SESSION["company"])) {
             border-right: 1px solid #eee;
         }
 
+        th{
+            font-size: 80%;
+            padding: 0px;
+            text-align: center;
+        }
+
+        td{
+
+            font-size: 80%;
+            text-align: center;
+        }
+
+
         /* Sidebar navigation */
         .sidebar {
             padding-left: 0;
@@ -405,7 +418,7 @@ if (!isset($_SESSION["company"])) {
                 $('#category_id_edit').val(details.category_id)
                 $('#category_name_edit').val(details.category_name)
                 $('textarea#category_description_edit').val(details.category_description)
-                console.log(package_id = details.package_id)
+                package_id = details.package_id
             }
         });
 

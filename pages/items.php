@@ -160,6 +160,62 @@ if (!isset($_SESSION["company"])) {
         <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
 
             <h2 style="margin-top: 10px;"><?php echo $company->company_name; ?></h2>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group" >
+                        <label for="packageSelect">Package</label>
+                        <select class="form-control" id="packageSelect">
+                            <option>-</option>
+                            <?php
+                            $packages = $db->getAllCompanyPackages($company->company_id);
+                            foreach ($packages as $package){
+                            ?>
+                            <option onclick="packageSelect(<?php echo $package->package_id;?>)"><?php echo $package->package_name;?></option>
+                            <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="form-group" >
+                        <label for="categorySelect">Category</label>
+                        <select class="form-control" id="categorySelect">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-hover table-sm">
+                <thead class="thead-inverse">
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Item Description</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr class="table-warning" style="cursor: pointer" id="add">
+                    <td>
+                        <h6>Add new package</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+
+
+
+
+
         </main>
     </div>
 </div>
@@ -171,6 +227,7 @@ if (!isset($_SESSION["company"])) {
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
         integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
         crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
         integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
         crossorigin="anonymous"></script>
@@ -179,6 +236,57 @@ if (!isset($_SESSION["company"])) {
         crossorigin="anonymous"></script>
 
 <script>
+    $(function () {
+
+
+    })
+
+    function packageSelect(x){
+        $('#categorySelect').empty()
+
+        var fd = new FormData();
+        fd.append('package_id', x);
+
+        $.ajax({
+            type: 'POST',
+            url: '../handler/getCategoriesByPackage.php',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                var details = JSON.parse(data)
+                $('#categorySelect').append("<option>-</option>")
+                $.each(details, function(i, item) {
+                    $('#categorySelect').append("<option onclick='categorySelect("+item.category_id+")'>"+item.category_name+"</option>")
+                });
+            }
+        });
+    }
+
+    function categorySelect(x) {
+
+        
+
+        var fd = new FormData();
+        fd.append('category_id', x);
+
+        $.ajax({
+            type: 'POST',
+            url: '../handler/getItemsPerCategory.php',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                var details = JSON.parse(data)
+                $.each(details, function(i, item) {
+                    $('#add').before(
+                        "<tr><td></td><td></td> <td> <div class='dropdown'> <a class='btn btn-secondary dropdown-toggle' href='' id='dropdownMenuLink'data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action </a> <div class='dropdown-menu' aria-labelledby='dropdownMenuLink'> <a class='dropdown-item' href='#'>Edit</a> <a class='dropdown-item'href='#'>Delete</a> </div> </div> </td> </tr>")
+                });
+
+            }
+        });
+    }
+
     function signout_dialog() {
         var r = confirm("Do you really want to sign out?");
         if (r == false) {
