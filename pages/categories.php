@@ -181,8 +181,6 @@ if (!isset($_SESSION["company"])) {
                     }
                 }
                 ?>
-
-
             </div>
             <?php
             $packages = $db->getAllCompanyPackages($company->company_id);

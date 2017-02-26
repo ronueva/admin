@@ -160,21 +160,24 @@ if (!isset($_SESSION["company"])) {
         <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
 
             <h2 style="margin-top: 10px;"><?php echo $company->company_name; ?></h2>
+            <div class="row" id="succesMsg">
+            </div>
 
             <hr>
 
             <div class="row">
                 <div class="col-sm-3">
-                    <div class="form-group" >
+                    <div class="form-group">
                         <label for="packageSelect">Package</label>
                         <select class="form-control" id="packageSelect">
                             <option>-</option>
                             <?php
                             $packages = $db->getAllCompanyPackages($company->company_id);
-                            foreach ($packages as $package){
-                            ?>
-                            <option onclick="packageSelect(<?php echo $package->package_id;?>)"><?php echo $package->package_name;?></option>
-                            <?php
+                            foreach ($packages as $package) {
+                                ?>
+                                <option value="<?php echo $package->package_id; ?>"
+                                        )"><?php echo $package->package_name; ?></option>
+                                <?php
                             }
                             ?>
                         </select>
@@ -182,7 +185,7 @@ if (!isset($_SESSION["company"])) {
                 </div>
 
                 <div class="col-sm-3">
-                    <div class="form-group" >
+                    <div class="form-group">
                         <label for="categorySelect">Category</label>
                         <select class="form-control" id="categorySelect">
                         </select>
@@ -198,13 +201,12 @@ if (!isset($_SESSION["company"])) {
                     <th></th>
                 </tr>
                 </thead>
-                <tbody>
-
-                <tr class="table-warning" style="cursor: pointer" id="add">
+                <tbody id="table_content">
+                <tr onclick="showAddModal(getPackageCategoryId())" class="table-warning" style="cursor: pointer"
+                    id="add">
                     <td>
-                        <h6>Add new package</h6>
+                        <h6>Add new item</h6>
                     </td>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -213,10 +215,102 @@ if (!isset($_SESSION["company"])) {
             </table>
 
 
-
-
-
         </main>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form_addItem">
+                <div class="modal-body" style="padding: 7%">
+                    <div id="i_name_group" class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Item Name</span>
+                        <input type="text" id='item_name' name="item_name" class="form-control"
+                               placeholder="E.g. Candy,Toys,Party-Poppers"
+                               aria-describedby="basic-addon1">
+                    </div>
+                    <div id="i_description_group" name="i_description_group" class="form-group" style="margin-top: 5%">
+                        <label for="item_description">Item Description</label>
+                        <textarea class="form-control" id="item_description" name="item_description"
+                                  rows="3"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="cursor: pointer" id="btn_save" class="btn btn-primary">Save changes
+                    </button>
+                    <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="deleteModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete item?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" style="cursor: pointer" id="deleteBtn" class="btn btn-danger">Delete</button>
+                <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="../handler/editPackage.php" id="form_editItem" method="post" enctype="multipart/form-data">
+                <div class="modal-body" style="padding: 7%">
+                    <input type="text" id="item_id_edit" name="item_id_edit" class="form-control"
+                           style="visibility: hidden" readonly placeholder="">
+                    <div id="i_name_group_edit" class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Item Name</span>
+                        <input type="text" id='item_name_edit' name="item_name_edit" class="form-control"
+                               placeholder="E.g. Food, Personnel, Giveaways"
+                               aria-describedby="basic-addon1">
+                    </div>
+                    <div id="i_description_group_edit" name="i_description_group_edit" class="form-group"
+                         style="margin-top: 5%">
+                        <label for="item_description">Item Description</label>
+                        <textarea class="form-control" id="item_description_edit" name="item_description_edit"
+                                  rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="cursor: pointer" id="btn_save_edit" class="btn btn-primary">Save
+                        changes
+                    </button>
+                    <button type="button" style="cursor: pointer" class="btn btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -236,55 +330,306 @@ if (!isset($_SESSION["company"])) {
         crossorigin="anonymous"></script>
 
 <script>
+    var check_input_arr = new Array();
+
     $(function () {
+        $('#packageSelect').on('change', function () {
+            $('#categorySelect').empty()
+            $('tr[id^=item_row]').empty()
+
+            var fd = new FormData();
+            fd.append('package_id', $('#packageSelect').val());
+
+            $.ajax({
+                type: 'POST',
+                url: '../handler/getCategoriesByPackage.php',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    var details = JSON.parse(data)
+                    $('#categorySelect').append("<option>-</option>")
+                    $.each(details, function (i, item) {
+                        $('#categorySelect').append("<option value=" + item.category_id + ">" + item.category_name + "</option>")
+                    });
+                }
+            });
+        })
+
+        $('#categorySelect').on('change', function () {
+            $('tr[id^=item_row]').empty()
+            var fd = new FormData();
+            fd.append('category_id', $('#categorySelect').val())
+
+            $.ajax({
+                type: 'POST',
+                url: '../handler/getItemsPerCategory.php',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    var details = JSON.parse(data)
+
+                    if (details.length == 0) {
+                        $('#add').before(
+                            "<tr id='no_item_row' class='table-active' >" +
+                            "<td><h6>No Items</h6></td>" +
+                            "<td></td>" +
+                            "<td></td>" +
+                            "<td></td>" +
+                            "</tr>")
+                    }
+
+
+
+                    $.each(details, function (i, item) {
+                        $('#add').before(
+                            "<tr id='item_row"+item.item_id+"'>" +
+                            "<td>" + item.item_id + "</td>" +
+                            "<td>" + item.item_name + "</td>" +
+                            "<td>" + item.item_description + "</td>" +
+                            "<td> " +
+                            "<div class='dropdown'>" +
+                            "<a class='btn btn-secondary dropdown-toggle' href='' id='dropdownMenuLink'data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action </a> " +
+                            "<div class='dropdown-menu' aria-labelledby='dropdownMenuLink'> " +
+                            "<a class='dropdown-item' style='cursor: pointer' onclick='showEditModal("+item.category_id+","+item.item_id+")'>Edit</a> " +
+                            "<a class='dropdown-item' style='cursor: pointer' " +
+                            "onclick='showDeleteModal(" + item.item_id + ")'>Delete</a> " +
+                            "</div> " +
+                            "</div> " +
+                            "</td> " +
+                            "</tr>")
+                    });
+
+                }
+            });
+        })
+
+        $('#btn_save').on('click', function () {
+
+            check_input_arr = new Array();
+
+            var i_name = $("#item_name").val()
+            var i_description = $("#item_description").val()
+
+            checkElement(i_name, $("#item_name"), $("#i_name_group"))
+            checkElement(i_description, $("#item_description"), $("#i_description_group"))
+
+            if (!check_input_arr.includes(false)) {
+
+                var fd = new FormData();
+                var other_data = $('#form_addItem').serializeArray();
+                $.each(other_data, function (key, input) {
+                    fd.append(input.name, input.value);
+                });
+                fd.append('category_id', $('#categorySelect').val())
+                fd.append('package_id', $('#packageSelect').val())
+
+                $.ajax({
+                    type: 'POST',
+                    url: '../handler/addItem.php',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $('#addModal').modal('hide');
+                        var item = JSON.parse(data)
+
+                        if (item.successDb) {
+                            $('#succesMsg').append(
+                                "<div class='col-sm-3 offset-9'> " +
+                                "<div id='addedAlert' class='alert alert-success alert-dismissible fade show' role='alert'> " +
+                                "<button type='button' class='close' data-dismiss='alert' aria-label='Close'> " +
+                                "<span aria-hidden='tru'>&times;</span> " +
+                                "</button> " +
+                                "<strong>Success!</strong> Item added successfully." +
+                                " </div>" +
+                                " </div> "
+                            )
+                            $('#add').before(
+                                "<tr id='item_row"+item.item_id.item_id +"'>" +
+                                "<td>" + item.item_id.item_id + "</td>" +
+                                "<td>" + item.item_name + "</td>" +
+                                "<td>" + item.item_description + "</td>" +
+                                "<td> " +
+                                "<div class='dropdown'>" +
+                                "<a class='btn btn-secondary dropdown-toggle' href='' id='dropdownMenuLink'data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action </a> " +
+                                "<div class='dropdown-menu' aria-labelledby='dropdownMenuLink'> " +
+                                "<a class='dropdown-item' style='cursor: pointer' onclick='showEditModal("+item.category_id+","+item.item_id.item_id+")'>Edit</a> " +
+                                "<a class='dropdown-item' style='cursor: pointer' " +
+                                "onclick='showDeleteModal(" + item.item_id.item_id + ")'>Delete</a> " +
+                                "</div> " +
+                                "</div> " +
+                                "</td> " +
+                                "</tr>")
+                        } else {
+                            $('#succesMsg').append(
+                                "<div class='col-sm-3 offset-9'> " +
+                                "<div id='addedAlert' class='alert alert-danger alert-dismissible fade show' role='alert'> " +
+                                "<button type='button' class='close' data-dismiss='alert' aria-label='Close'> " +
+                                "<span aria-hidden='tru'>&times;</span> " +
+                                "</button> " +
+                                "<strong>Error!</strong> Error in DB." +
+                                " </div>" +
+                                " </div> "
+                            )
+                        }
+
+                    }
+                });
+            }
+        })
 
 
     })
 
-    function packageSelect(x){
-        $('#categorySelect').empty()
+    function getPackageCategoryId() {
+        var x = new Array();
+        var package_id = $('#packageSelect').val();
+        var category_id = $('#categorySelect').val();
 
-        var fd = new FormData();
-        fd.append('package_id', x);
 
-        $.ajax({
-            type: 'POST',
-            url: '../handler/getCategoriesByPackage.php',
-            data: fd,
-            contentType: false,
-            processData: false,
-            success: function (data) {
-                var details = JSON.parse(data)
-                $('#categorySelect').append("<option>-</option>")
-                $.each(details, function(i, item) {
-                    $('#categorySelect').append("<option onclick='categorySelect("+item.category_id+")'>"+item.category_name+"</option>")
-                });
-            }
-        });
+        x.push(package_id);
+        x.push(category_id);
+
+        return x;
+
     }
 
-    function categorySelect(x) {
+    function showAddModal(x) {
+        if (checkAddParams(x)) {
+            $('#addModal').modal({backdrop: 'static', keyboard: false})
+        } else {
+            alert('Choose package and category first');
+        }
+    }
 
-        
+    function showEditModal(category_id,item_id) {
+        $('#editModal').modal({backdrop: 'static', keyboard: false})
 
         var fd = new FormData();
-        fd.append('category_id', x);
+        fd.append('item_id',item_id)
 
         $.ajax({
             type: 'POST',
-            url: '../handler/getItemsPerCategory.php',
+            url: '../handler/getItem.php',
             data: fd,
             contentType: false,
             processData: false,
             success: function (data) {
                 var details = JSON.parse(data)
-                $.each(details, function(i, item) {
-                    $('#add').before(
-                        "<tr><td></td><td></td> <td> <div class='dropdown'> <a class='btn btn-secondary dropdown-toggle' href='' id='dropdownMenuLink'data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action </a> <div class='dropdown-menu' aria-labelledby='dropdownMenuLink'> <a class='dropdown-item' href='#'>Edit</a> <a class='dropdown-item'href='#'>Delete</a> </div> </div> </td> </tr>")
-                });
-
+                $('#item_id_edit').val(details.item_id)
+                $('#item_name_edit').val(details.item_name)
+                $('textarea#item_description_edit').val(details.item_description)
             }
         });
+
+        $('#btn_save_edit').on('click', function () {
+
+            check_input_arr = new Array();
+
+            var i_name = $("#item_name_edit").val()
+            var i_description = $("#item_description_edit").val()
+
+            checkElement(i_name, $("#item_name_edit"), $("#i_name_group_edit"))
+            checkElement(i_description, $("#item_description_edit"), $("#i_description_group_edit"))
+
+            if (!check_input_arr.includes(false)) {
+                var fd = new FormData();
+                var other_data = $('#form_editItem').serializeArray();
+                $.each(other_data, function (key, input) {
+                    fd.append(input.name, input.value);
+                });
+                fd.append('category_id', category_id);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '../handler/editItem.php',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $('#editModal').modal('toggle');
+                        var details = JSON.parse(data)
+
+                        $('tr[id^=item_row]').empty()
+
+                        if (details.length == 0) {
+                            $('#add').before(
+                                "<tr id='no_item_row' class='table-active' >" +
+                                "<td><h6>No Items</h6></td>" +
+                                "<td></td>" +
+                                "<td></td>" +
+                                "<td></td>" +
+                                "</tr>")
+                        }
+
+                        $.each(details.item, function (i, item) {
+                            $('#add').before(
+                                "<tr id='item_row"+item.item_id+"'>" +
+                                "<td>" + item.item_id + "</td>" +
+                                "<td>" + item.item_name + "</td>" +
+                                "<td>" + item.item_description + "</td>" +
+                                "<td> " +
+                                "<div class='dropdown'>" +
+                                "<a class='btn btn-secondary dropdown-toggle' href='' id='dropdownMenuLink'data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action </a> " +
+                                "<div class='dropdown-menu' aria-labelledby='dropdownMenuLink'> " +
+                                "<a class='dropdown-item' style='cursor: pointer' onclick='showEditModal("+item.category_id+","+item.item_id+")'>Edit</a> " +
+                                "<a class='dropdown-item' style='cursor: pointer' " +
+                                "onclick='showDeleteModal(" + item.item_id + ")'>Delete</a> " +
+                                "</div> " +
+                                "</div> " +
+                                "</td> " +
+                                "</tr>")
+                        });
+                    }
+                });
+            }
+
+        })
+
+    }
+
+    function showDeleteModal(x) {
+        $('#deleteModal').modal({backdrop: 'static', keyboard: false})
+
+        var fd = new FormData();
+        fd.append('item_id', x);
+
+        $('#deleteBtn').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: '../handler/deleteItem.php',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('#deleteModal').modal('hide');
+                    if (data) {
+                        $("#item_row"+x).remove()
+                    }
+                }
+            });
+        })
+    }
+
+    function checkElement(value, input, group) {
+        if (!value) {
+            $(group).addClass("has-danger")
+            $(input).addClass("form-control-danger")
+            check_input_arr.push(false)
+        } else {
+            $(group).removeClass("has-danger")
+            $(input).removeClass("form-control-danger")
+            check_input_arr.push(true)
+        }
+    }
+
+    function checkAddParams(x) {
+        if (x[0] == "-" || x[0] == null || x[1] == "-" || x[1] == null) {
+            return false;
+        }
+        return true;
     }
 
     function signout_dialog() {

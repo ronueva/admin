@@ -534,6 +534,16 @@ class DbHandler extends dbConn
 
     //ITEMS CRUD
 
+    function getItemMaxId(){
+        $getMaxStmnt = $this->conn->prepare(
+            "Select max(item_id) AS 'item_id' from items"
+        );
+        $getMaxStmnt->execute();
+
+
+        return $getMaxStmnt->Fetch(PDO::FETCH_OBJ);
+    }
+
     function addItem($category_id, $item_name, $item_description)
     {
 
@@ -614,7 +624,18 @@ class DbHandler extends dbConn
         return $getItemStatement->FetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getItemById($item_id)
+    {
+        $getItemStatement = $this->conn->prepare(
+            "Select * FROM items WHERE item_id = :item_id"
+        );
+        $getItemStatement->execute(array(
+            ':item_id' => $item_id
+        ));
 
+
+        return $getItemStatement->Fetch(PDO::FETCH_OBJ);
+    }
 
 
 }
