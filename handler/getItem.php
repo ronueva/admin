@@ -19,14 +19,10 @@ if (!isset($_SESSION["company"])) {
     $company = $_SESSION["company"];
 }
 
-$item_id = $_POST['item_id'];
+$item = $db->getItemById($_POST['item_id']);
 
-if($db->deleteItem($item_id)){
-    echo true;
-} else {
-    echo false;
-}
+echo json_encode($item);
+
 
 
 ?>
-
